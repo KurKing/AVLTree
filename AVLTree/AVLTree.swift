@@ -15,21 +15,21 @@ class AVLTree<T:Comparable> {
     private(set) var size = 0
     
     //MARK: - Insert
-    public func insert(key: T) {
+    public func insert(value: T) {
         if let root = root {
-            insert(input: key, node: root)
+            insert(input: value, node: root)
         } else {
-            root = Node(key: key)
+            root = Node(value: value)
         }
         size += 1
     }
     
     private func insert(input: T, node: Node) {
-        if input < node.data {
+        if input < node.value {
             if let child = node.leftChild {
                 insert(input: input, node: child)
             } else {
-                let child = Node(key: input, leftChild: nil, rightChild: nil, parent: node, height: 1)
+                let child = Node(value: input, leftChild: nil, rightChild: nil, parent: node, height: 1)
                 node.leftChild = child
                 balance(node: child)
             }
@@ -37,7 +37,7 @@ class AVLTree<T:Comparable> {
             if let child = node.rightChild {
                 insert(input: input, node: child)
             } else {
-                let child = Node(key: input, leftChild: nil, rightChild: nil, parent: node, height: 1)
+                let child = Node(value: input, leftChild: nil, rightChild: nil, parent: node, height: 1)
                 node.rightChild = child
                 balance(node: child)
             }
@@ -160,17 +160,58 @@ class AVLTree<T:Comparable> {
     }
     
     //MARK: - Delete
+    public func delete(value: T) {
+        if size == 1 {
+            root = nil
+            size -= 1
+        } else if let node = search(value: value, node: root) {
+            delete(node: node)
+            size -= 1
+        }
+    }
+    
+    private func delete(node: Node) {
+        if node.isLeaf {
+            // Just remove and balance up
+            if let parent = node.parent {
+                guard node.isLeftChild || node.isRightChild else {
+                    // just in case
+                    fatalError("Error: tree is invalid.")
+                }
+                
+                if node.isLeftChild {
+                    parent.leftChild = nil
+                } else if node.isRightChild {
+                    parent.rightChild = nil
+                }
+                
+                balance(node: parent)
+            } else {
+                // at root
+                root = nil
+            }
+        } else {
+            // Handle stem cases
+            if let replacement = node.leftChild?.maximum(), replacement !== node {
+                node.value = replacement.value
+                delete(node: replacement)
+            } else if let replacement = node.rightChild?.minimum(), replacement !== node {
+                node.value = replacement.value
+                delete(node: replacement)
+            }
+        }
+    }
     
     //MARK: - Search
     public func search(value: T) -> T? {
-        return search(value: value, node: root)?.data
+        return search(value: value, node: root)?.value
     }
     
     private func search(value: T, node: Node?) -> Node? {
         if let node = node {
-            if value == node.data {
+            if value == node.value {
                 return node
-            } else if value < node.data {
+            } else if value < node.value {
                 return search(value: value, node: node.leftChild)
             } else {
                 return search(value: value, node: node.rightChild)
@@ -180,20 +221,41 @@ class AVLTree<T:Comparable> {
     }
     
     //MARK: - Traverse
+    func traverse(){
+        if let root = root{
+            traverseInorder(node: root)
+        }
+        print()
+    }
+    
+    
+    private func traverseInorder(node: Node){
+        if let leftChild = node.leftChild {
+            traverseInorder(node: leftChild)
+        }
+        
+        print(node.value, terminator: "; ")
+        
+        if let rightChild = node.rightChild {
+            traverseInorder(node: rightChild)
+        }
+    }
+    
+    
     
     
     //MARK: - TreeNode
     private class TreeNode<T: Comparable> {
         typealias Node = TreeNode<T>
         
-        private(set) var data: T
+        var value: T
         var leftChild: Node?
         var rightChild: Node?
         var height: Int
         weak var parent: Node?
         
-        init(key: T, leftChild: Node?, rightChild: Node?, parent: Node?, height: Int) {
-            self.data = key
+        init(value: T, leftChild: Node?, rightChild: Node?, parent: Node?, height: Int) {
+            self.value = value
             self.leftChild = leftChild
             self.rightChild = rightChild
             self.parent = parent
@@ -203,8 +265,8 @@ class AVLTree<T:Comparable> {
             self.rightChild?.parent = self
         }
         
-        convenience init(key: T) {
-            self.init(key: key, leftChild: nil, rightChild: nil, parent: nil, height: 1)
+        convenience init(value: T) {
+            self.init(value: value, leftChild: nil, rightChild: nil, parent: nil, height: 1)
         }
         
         var isRoot: Bool {
@@ -221,6 +283,14 @@ class AVLTree<T:Comparable> {
         
         var isRightChild: Bool {
             return parent?.rightChild === self
+        }
+        
+        func minimum() -> Node? {
+            return leftChild?.minimum() ?? self
+        }
+        
+        func maximum() -> Node? {
+            return rightChild?.maximum() ?? self
         }
     }
 }
