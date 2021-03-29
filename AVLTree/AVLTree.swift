@@ -241,7 +241,26 @@ class AVLTree<T:Comparable> {
         }
     }
     
-    
+    //MARK: - To Array
+    func toArray() -> [T] {
+        if let root = root {
+            var result = [T]()
+            toArray(array: &result, node: root)
+            return result
+        }
+        return []
+    }
+    private func toArray(array: inout[T], node: Node){
+        if let leftChild = node.leftChild {
+            toArray(array: &array, node: leftChild)
+        }
+        
+        array.append(node.value)
+        
+        if let rightChild = node.rightChild {
+            toArray(array: &array, node: rightChild)
+        }
+    }
     
     
     //MARK: - TreeNode

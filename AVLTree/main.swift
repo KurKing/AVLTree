@@ -8,30 +8,34 @@
 import Foundation
 
 let tree = AVLTree<Int>()
+let elementsCount = 1000000
 
-tree.insert(value: 5)
-tree.traverse()
+var startCalculationTime = Date().timeIntervalSinceReferenceDate
 
-tree.insert(value: 4)
-tree.traverse()
+for _ in 0..<elementsCount {
+    tree.insert(value: Int.random(in: -20...20))
+}
 
-tree.insert(value: 3)
-tree.traverse()
+print("Add \(elementsCount) elements ")
+var endCalculationTime = Date().timeIntervalSinceReferenceDate
+print("\(endCalculationTime-startCalculationTime) seconds")
 
-tree.insert(value: 2)
-tree.traverse()
+print("\nSize: \(tree.size) ")
 
-tree.insert(value: 1)
-tree.traverse()
+startCalculationTime = Date().timeIntervalSinceReferenceDate
 
-tree.delete(value: 2)
-tree.traverse()
+let treeArray = tree.toArray()
 
-tree.delete(value: 6)
-tree.traverse()
+print("\nToArray \(elementsCount) elements ")
+endCalculationTime = Date().timeIntervalSinceReferenceDate
+print("\(endCalculationTime-startCalculationTime) seconds")
 
-tree.insert(value: 1)
-tree.traverse()
+startCalculationTime = Date().timeIntervalSinceReferenceDate
 
-print(tree.search(value: 3))
-print(tree.search(value: 10))
+for i in treeArray{
+    tree.delete(value: i)
+}
+
+print("\nRemove \(elementsCount) elements ")
+endCalculationTime = Date().timeIntervalSinceReferenceDate
+print("\(endCalculationTime-startCalculationTime) seconds")
